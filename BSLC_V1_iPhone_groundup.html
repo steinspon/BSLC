@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Barrier Sealing Length Calculator</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --text: #111111;
+      --muted: #5f6b77;
+      --border: #d8dee6;
+      --accent: #210d2a;
+      --line: #000000;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 16px;
+      --input-height: 48px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.4;
+    }
+
+    body {
+      padding: 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-3 {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .inline {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 88px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      min-height: var(--input-height);
+      border: 1px solid #c8d0d8;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-size: 16px;
+      padding: 10px 12px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    button {
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fbfcfd;
+    }
+
+    .metric .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .warning {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #f0d98c;
+      background: #fff8e1;
+      color: #5c4700;
+      font-size: 14px;
+    }
+
+    .canvas-wrap {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .canvas-inner {
+      min-width: 700px;
+      padding: 8px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+      touch-action: manipulation;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 20px;
+      height: 12px;
+      border: 1px solid #000;
+      background: #fff;
+    }
+
+    .table-scroll {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 10px 10px;
+      border-top: 1px solid #e6ebf0;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    thead th {
+      border-top: none;
+      background: #fafbfc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    @media (min-width: 900px) {
+      .app {
+        grid-template-columns: 360px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .sticky {
+        position: sticky;
+        top: 14px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .button-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="sticky">
+      <div class="card">
+        <h1>Barrier Sealing Length Calculator</h1>
+        <p class="muted">Built from the ground up for local use on iPhone Safari.</p>
+      </div>
+
+      <div class="card" style="margin-top: 14px;">
+        <h2>Inputs</h2>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="diameter">Borehole diameter</label>
+            <div class="inline">
+              <input id="diameter" type="number" step="any" value="10.5">
+              <select id="diameterUnit">
+                <option value="in" selected>in</option>
+                <option value="mm">mm</option>
+              </select>
+            </div>
+            <div class="small">Default: 10.5 in</div>
+          </div>
+
+          <div class="field">
+            <label for="inclination">Inclination from vertical (°)</label>
+            <input id="inclination" type="number" step="any" min="0" max="89.9" value="45">
+            <div class="small">0° = vertical well</div>
+          </div>
+
+          <div class="field">
+            <label for="interval">Plotted interval</label>
+            <div class="inline">
+              <input id="interval" type="number" step="any" placeholder="Auto">
+              <select id="intervalUnit">
+                <option value="m" selected>m</option>
+                <option value="ft">ft</option>
+              </select>
+            </div>
+            <div class="small">Blank = 1.5 × filled extent</div>
+          </div>
+
+          <div class="field">
+            <label for="volume">Bismuth alloy volume</label>
+            <div class="inline">
+              <input id="volume" type="number" step="any" min="0" value="50">
+              <select disabled>
+                <option>litres</option>
+              </select>
+            </div>
+            <div class="small">Default: 50 L</div>
+          </div>
+
+          <div class="field">
+            <label for="rangeMin">BHID range min</label>
+            <div class="inline">
+              <input id="rangeMin" type="number" step="any" placeholder="Auto">
+              <select id="rangeUnit">
+                <option value="in" selected>in</option>
+                <option value="mm">mm</option>
+              </select>
+            </div>
+            <div class="small">Blank = borehole diameter</div>
+          </div>
+
+          <div class="field">
+            <label for="rangeMax">BHID range max</label>
+            <div class="inline">
+              <input id="rangeMax" type="number" step="any" placeholder="Auto">
+              <select id="rangeUnitMirror" disabled>
+                <option value="in" selected>in</option>
+                <option value="mm">mm</option>
+              </select>
+            </div>
+            <div class="small">Blank = 1.1 × borehole diameter</div>
+          </div>
+
+          <div class="field">
+            <label for="fillColor">Bismuth fill colour</label>
+            <input id="fillColor" type="color" value="#210d2a" style="padding: 4px; min-height: 48px;">
+            <div class="small">Used in all plots and legend</div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="redrawBtn" type="button">Recalculate</button>
+          <button id="exportWellBtn" type="button">Export well plot</button>
+          <button id="exportChartsBtn" type="button">Export charts</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Calculated information</h2>
+        <div class="metrics">
+          <div class="metric">
+            <div class="label">Bismuth volume (total)</div>
+            <div class="value" id="outTotal">-</div>
+          </div>
+          <div class="metric">
+            <div class="label">Minimum bismuth volume</div>
+            <div class="value" id="outMin">-</div>
+          </div>
+          <div class="metric">
+            <div class="label">Effective barrier length</div>
+            <div class="value" id="outEff">-</div>
+          </div>
+          <div class="metric">
+            <div class="label">Volume required for 500 mm barrier</div>
+            <div class="value" id="out500">-</div>
+          </div>
+        </div>
+        <div class="warning" id="warningBox"></div>
+      </div>
+
+      <div class="card" style="margin-top: 14px;">
+        <h2>Cross section</h2>
+        <div class="canvas-wrap">
+          <div class="canvas-inner">
+            <canvas id="wellCanvas" width="900" height="500"></canvas>
+          </div>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="swatch"></span>Borehole outline</span>
+          <span class="legend-item"><span class="swatch" id="fillSwatch"></span>Bismuth</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 14px;">
+        <h2>Effective barrier length by inclination</h2>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Inclination (°)</th>
+                <th>Minimum bismuth volume (L)</th>
+                <th>Effective barrier length (m)</th>
+                <th>Volume for 500 mm barrier (L)</th>
+              </tr>
+            </thead>
+            <tbody id="sweepBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 14px;">
+        <h2>Volume requirement vs inclination</h2>
+        <div class="canvas-wrap">
+          <div class="canvas-inner">
+            <canvas id="inclinationCanvas" width="900" height="430"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 14px;">
+        <h2>Barrier length vs borehole diameter</h2>
+        <div class="canvas-wrap">
+          <div class="canvas-inner">
+            <canvas id="diameterCanvas" width="900" height="430"></canvas>
+          </div>
+        </div>
+        <div class="footer-note">The Y-axis minimum is adjusted to sit just below the minimum plotted value, not forced to zero.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    /*
+      ======================================================================
+      DEFAULT VALUES
+      Edit these values if you want different starting inputs when the file opens.
+      ======================================================================
+    */
+    const DEFAULTS = {
+      diameter: 10.5,
+      diameterUnit: "in",
+      inclinationDeg: 45,
+      interval: "",
+      intervalUnit: "m",
+      volumeLitres: 50,
+      rangeMin: "",
+      rangeMax: "",
+      rangeUnit: "in",
+      fillColor: "#210d2a"
+    };
+
+    /*
+      ======================================================================
+      BASIC CONFIGURATION
+      ======================================================================
+    */
+    const SWEEP_ANGLES = [0, 10, 20, 30, 40, 50, 60, 70, 80];
+    const CHART_MAX_ANGLE = 80;
+    const DIAMETER_SAMPLES = 41;
+
+    const el = {
+      diameter: document.getElementById("diameter"),
+      diameterUnit: document.getElementById("diameterUnit"),
+      inclination: document.getElementById("inclination"),
+      interval: document.getElementById("interval"),
+      intervalUnit: document.getElementById("intervalUnit"),
+      volume: document.getElementById("volume"),
+      rangeMin: document.getElementById("rangeMin"),
+      rangeMax: document.getElementById("rangeMax"),
+      rangeUnit: document.getElementById("rangeUnit"),
+      rangeUnitMirror: document.getElementById("rangeUnitMirror"),
+      fillColor: document.getElementById("fillColor"),
+      redrawBtn: document.getElementById("redrawBtn"),
+      exportWellBtn: document.getElementById("exportWellBtn"),
+      exportChartsBtn: document.getElementById("exportChartsBtn"),
+      outTotal: document.getElementById("outTotal"),
+      outMin: document.getElementById("outMin"),
+      outEff: document.getElementById("outEff"),
+      out500: document.getElementById("out500"),
+      warningBox: document.getElementById("warningBox"),
+      sweepBody: document.getElementById("sweepBody"),
+      fillSwatch: document.getElementById("fillSwatch"),
+      wellCanvas: document.getElementById("wellCanvas"),
+      inclinationCanvas: document.getElementById("inclinationCanvas"),
+      diameterCanvas: document.getElementById("diameterCanvas")
+    };
+
+    function mmToM(v) { return v / 1000; }
+    function inchToM(v) { return v * 0.0254; }
+    function ftToM(v) { return v * 0.3048; }
+    function m3ToL(v) { return v * 1000; }
+    function litresToM3(v) { return v / 1000; }
+    function degToRad(v) { return v * Math.PI / 180; }
+
+    function fmt(v, digits) {
+      return new Intl.NumberFormat("en-GB", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: digits
+      }).format(v);
+    }
+
+    function niceStep(range, targetTicks) {
+      const safeRange = Math.max(range, 1e-9);
+      const rough = safeRange / Math.max(targetTicks, 1);
+      const power = Math.pow(10, Math.floor(Math.log10(rough)));
+      const scaled = rough / power;
+      const multiplier = scaled < 1.5 ? 1 : scaled < 3 ? 2 : scaled < 7 ? 5 : 10;
+      return multiplier * power;
+    }
+
+    function setInitialDefaults() {
+      el.diameter.value = DEFAULTS.diameter;
+      el.diameterUnit.value = DEFAULTS.diameterUnit;
+      el.inclination.value = DEFAULTS.inclinationDeg;
+      el.interval.value = DEFAULTS.interval;
+      el.intervalUnit.value = DEFAULTS.intervalUnit;
+      el.volume.value = DEFAULTS.volumeLitres;
+      el.rangeMin.value = DEFAULTS.rangeMin;
+      el.rangeMax.value = DEFAULTS.rangeMax;
+      el.rangeUnit.value = DEFAULTS.rangeUnit;
+      el.rangeUnitMirror.value = DEFAULTS.rangeUnit;
+      el.fillColor.value = DEFAULTS.fillColor;
+      el.fillSwatch.style.background = DEFAULTS.fillColor;
+    }
+
+    function syncRangeUnits() {
+      el.rangeUnit.value = el.diameterUnit.value;
+      el.rangeUnitMirror.value = el.diameterUnit.value;
+    }
+
+    function getInputState() {
+      const diameterRaw = parseFloat(el.diameter.value);
+      const inclinationDeg = parseFloat(el.inclination.value);
+      const volumeL = parseFloat(el.volume.value);
+      const intervalRaw = el.interval.value.trim() === "" ? null : parseFloat(el.interval.value);
+      const rangeMinRaw = el.rangeMin.value.trim() === "" ? null : parseFloat(el.rangeMin.value);
+      const rangeMaxRaw = el.rangeMax.value.trim() === "" ? null : parseFloat(el.rangeMax.value);
+
+      if (!Number.isFinite(diameterRaw) || diameterRaw <= 0) throw new Error("Enter a valid positive borehole diameter.");
+      if (!Number.isFinite(inclinationDeg) || inclinationDeg < 0 || inclinationDeg >= 90) throw new Error("Inclination must be between 0 and less than 90 degrees.");
+      if (!Number.isFinite(volumeL) || volumeL < 0) throw new Error("Enter a valid non-negative volume.");
+      if (intervalRaw !== null && (!Number.isFinite(intervalRaw) || intervalRaw <= 0)) throw new Error("Plotted interval must be positive if specified.");
+      if (rangeMinRaw !== null && (!Number.isFinite(rangeMinRaw) || rangeMinRaw <= 0)) throw new Error("BHID range min must be positive if specified.");
+      if (rangeMaxRaw !== null && (!Number.isFinite(rangeMaxRaw) || rangeMaxRaw <= 0)) throw new Error("BHID range max must be positive if specified.");
+
+      const diameterM = el.diameterUnit.value === "mm" ? mmToM(diameterRaw) : inchToM(diameterRaw);
+      const intervalM = intervalRaw === null ? null : (el.intervalUnit.value === "m" ? intervalRaw : ftToM(intervalRaw));
+
+      const autoRangeMin = diameterRaw;
+      const autoRangeMax = diameterRaw * 1.1;
+
+      if (el.rangeMin.value.trim() === "") el.rangeMin.placeholder = String(Number(autoRangeMin.toFixed(3)));
+      if (el.rangeMax.value.trim() === "") el.rangeMax.placeholder = String(Number(autoRangeMax.toFixed(3)));
+
+      const rangeUnit = el.rangeUnit.value;
+      const rangeMinDisplay = rangeMinRaw === null ? autoRangeMin : rangeMinRaw;
+      const rangeMaxDisplay = rangeMaxRaw === null ? autoRangeMax : rangeMaxRaw;
+
+      const rangeMinM = rangeUnit === "mm" ? mmToM(rangeMinDisplay) : inchToM(rangeMinDisplay);
+      const rangeMaxM = rangeUnit === "mm" ? mmToM(rangeMaxDisplay) : inchToM(rangeMaxDisplay);
+
+      return {
+        diameterRaw,
+        diameterUnit: el.diameterUnit.value,
+        diameterM,
+        inclinationDeg,
+        inclinationRad: degToRad(inclinationDeg),
+        intervalM,
+        volumeL,
+        volumeM3: litresToM3(volumeL),
+        rangeUnit,
+        rangeMinDisplay: Math.min(rangeMinDisplay, rangeMaxDisplay),
+        rangeMaxDisplay: Math.max(rangeMinDisplay, rangeMaxDisplay),
+        rangeMinM: Math.min(rangeMinM, rangeMaxM),
+        rangeMaxM: Math.max(rangeMinM, rangeMaxM),
+        fillColor: el.fillColor.value
+      };
+    }
+
+    function solveMain(state) {
+      const D = state.diameterM;
+      const theta = state.inclinationRad;
+      const area = Math.PI * D * D / 4;
+      const minimumWedgeLength = D * Math.tan(theta);
+      const minimumVolumeM3 = 0.5 * area * minimumWedgeLength;
+      const effectiveBarrierM = Math.max(0, (state.volumeM3 - minimumVolumeM3) / area);
+      const volumeFor500mmM3 = minimumVolumeM3 + area * 0.5;
+      const filledExtentM = effectiveBarrierM + minimumWedgeLength;
+      const plottedIntervalM = state.intervalM === null ? Math.max(1e-6, filledExtentM * 1.5) : state.intervalM;
+
+      return {
+        D,
+        theta,
+        area,
+        minimumWedgeLength,
+        minimumVolumeM3,
+        effectiveBarrierM,
+        volumeFor500mmM3,
+        filledExtentM,
+        plottedIntervalM
+      };
+    }
+
+    function configureCanvas(canvas) {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const cssWidth = canvas.clientWidth || canvas.width;
+      const cssHeight = canvas.clientHeight || (canvas.width ? canvas.height * cssWidth / canvas.width : canvas.height);
+      canvas.width = Math.round(cssWidth * ratio);
+      canvas.height = Math.round(cssHeight * ratio);
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return {
+        ctx,
+        width: cssWidth,
+        height: cssHeight,
+        ratio
+      };
+    }
+
+    function clearCanvas(ctx, width, height) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = "#111111";
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 1;
+    }
+
+    function drawText(ctx, text, x, y, align = "left", font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif", color = "#111") {
+      ctx.save();
+      ctx.font = font;
+      ctx.fillStyle = color;
+      ctx.textAlign = align;
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    function makeTransform(intervalM, diameterM, width, height, margin, inclinationRad) {
+      const angle = Math.PI / 2 - inclinationRad;
+      const axis = { x: Math.cos(angle), y: -Math.sin(angle) };
+      const normal = { x: Math.cos(angle - Math.PI / 2), y: -Math.sin(angle - Math.PI / 2) };
+
+      const corners = [
+        { x: 0, y: diameterM / 2 },
+        { x: intervalM, y: diameterM / 2 },
+        { x: intervalM, y: -diameterM / 2 },
+        { x: 0, y: -diameterM / 2 }
+      ].map(p => ({
+        x: axis.x * p.x + normal.x * p.y,
+        y: axis.y * p.x + normal.y * p.y
+      }));
+
+      const minX = Math.min(...corners.map(p => p.x));
+      const maxX = Math.max(...corners.map(p => p.x));
+      const minY = Math.min(...corners.map(p => p.y));
+      const maxY = Math.max(...corners.map(p => p.y));
+
+      const innerW = width - margin.left - margin.right;
+      const innerH = height - margin.top - margin.bottom;
+      const scale = Math.min(innerW / Math.max(maxX - minX, 1e-9), innerH / Math.max(maxY - minY, 1e-9));
+      const offsetX = margin.left + innerW / 2 - ((minX + maxX) / 2) * scale;
+      const offsetY = margin.top + innerH / 2 - ((minY + maxY) / 2) * scale;
+
+      return function toCanvas(axialM, normalM) {
+        const x = axis.x * axialM + normal.x * normalM;
+        const y = axis.y * axialM + normal.y * normalM;
+        return {
+          x: offsetX + x * scale,
+          y: offsetY + y * scale
+        };
+      };
+    }
+
+    function getFillPolygon(main) {
+      const q = main.volumeM3 / main.area;
+      const D = main.D;
+      const interval = main.plottedIntervalM;
+      const topNormal = D / 2;
+      const bottomNormal = -D / 2;
+
+      const topYAtStart = topNormal;
+      const bottomYAtStart = bottomNormal;
+      const lowSideNormal = topYAtStart >= bottomYAtStart ? topNormal : bottomNormal;
+      const highSideNormal = topYAtStart >= bottomYAtStart ? bottomNormal : topNormal;
+
+      if (main.theta === 0) {
+        const length = Math.min(q, interval);
+        if (length <= 0) return [];
+        return [
+          { a: 0, n: lowSideNormal },
+          { a: 0, n: highSideNormal },
+          { a: length, n: highSideNormal },
+          { a: length, n: lowSideNormal }
+        ];
+      }
+
+      if (q <= 0.5 * main.minimumWedgeLength) {
+        const k = Math.sqrt(Math.max(0, 2 * q / Math.max(main.minimumWedgeLength, 1e-12)));
+        const tipAxial = Math.min(k * main.minimumWedgeLength, interval);
+        const capNormal = lowSideNormal + k * (highSideNormal - lowSideNormal);
+
+        return [
+          { a: 0, n: lowSideNormal },
+          { a: 0, n: capNormal },
+          { a: tipAxial, n: lowSideNormal }
+        ];
+      }
+
+      const flatLength = q - 0.5 * main.minimumWedgeLength;
+      const topAxial = Math.min(flatLength, interval);
+      const toeAxial = Math.min(flatLength + main.minimumWedgeLength, interval);
+
+      if (topAxial >= interval) {
+        return [
+          { a: 0, n: lowSideNormal },
+          { a: 0, n: highSideNormal },
+          { a: interval, n: highSideNormal },
+          { a: interval, n: lowSideNormal }
+        ];
+      }
+
+      return [
+        { a: 0, n: lowSideNormal },
+        { a: 0, n: highSideNormal },
+        { a: topAxial, n: highSideNormal },
+        { a: toeAxial, n: lowSideNormal }
+      ];
+    }
+
+    function drawPolygon(ctx, points, fill, stroke, lineWidth) {
+      if (!points.length) return;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i += 1) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawWellPlot(state, main) {
+      const setup = configureCanvas(el.wellCanvas);
+      const ctx = setup.ctx;
+      clearCanvas(ctx, setup.width, setup.height);
+
+      const margin = { top: 42, right: 24, bottom: 68, left: 24 };
+      const toCanvas = makeTransform(main.plottedIntervalM, main.D, setup.width, setup.height, margin, main.theta);
+      const fillPoly = getFillPolygon(main).map(p => toCanvas(p.a, p.n));
+
+      const outline = [
+        toCanvas(0, main.D / 2),
+        toCanvas(main.plottedIntervalM, main.D / 2),
+        toCanvas(main.plottedIntervalM, -main.D / 2),
+        toCanvas(0, -main.D / 2)
+      ];
+
+      drawText(ctx, "Vertical cross section (maximum inclination plane)", 24, 24, "left", "700 16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      drawText(ctx, `Inclination: ${fmt(state.inclinationDeg, 1)}° from vertical`, 24, 44, "left", "13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif", "#5f6b77");
+
+      drawPolygon(ctx, fillPoly, state.fillColor, "#000000", 2);
+      drawPolygon(ctx, outline, null, "#000000", 2.2);
+
+      drawText(ctx, `Plotted interval = ${fmt(main.plottedIntervalM, 3)} m`, 24, setup.height - 26, "left", "13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      drawText(ctx, `Borehole ID = ${fmt(main.D * 1000, 1)} mm`, 24, setup.height - 8, "left", "13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+
+      if (main.effectiveBarrierM > 0) {
+        const start = toCanvas(0, main.D / 2);
+        const end = toCanvas(Math.min(main.effectiveBarrierM, main.plottedIntervalM), main.D / 2);
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y - 16);
+        ctx.lineTo(end.x, end.y - 16);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        drawText(ctx, `${fmt(main.effectiveBarrierM, 2)} m effective`, (start.x + end.x) / 2, Math.min(start.y, end.y) - 22, "center", "700 12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+        ctx.restore();
+      }
+
+      if (main.filledExtentM > 0 && state.inclinationDeg > 0) {
+        const start = toCanvas(0, -main.D / 2);
+        const end = toCanvas(Math.min(main.filledExtentM, main.plottedIntervalM), -main.D / 2);
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y + 16);
+        ctx.lineTo(end.x, end.y + 16);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        drawText(ctx, `${fmt(main.filledExtentM, 2)} m filled`, (start.x + end.x) / 2, Math.max(start.y, end.y) + 30, "center", "700 12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+        ctx.restore();
+      }
+    }
+
+    function drawAxes(ctx, width, height, margin, xLabel, yLabel, xMin, xMax, yMin, yMax) {
+      const plotW = width - margin.left - margin.right;
+      const plotH = height - margin.top - margin.bottom;
+
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, margin.top + plotH);
+      ctx.lineTo(margin.left + plotW, margin.top + plotH);
+      ctx.moveTo(margin.left, margin.top);
+      ctx.lineTo(margin.left, margin.top + plotH);
+      ctx.stroke();
+
+      drawText(ctx, xLabel, margin.left + plotW / 2, height - 14, "center", "700 13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+
+      ctx.translate(18, margin.top + plotH / 2);
+      ctx.rotate(-Math.PI / 2);
+      drawText(ctx, yLabel, 0, 0, "center", "700 13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      ctx.restore();
+
+      return {
+        xScale: v => margin.left + (v - xMin) / Math.max(xMax - xMin, 1e-9) * plotW,
+        yScale: v => margin.top + plotH - (v - yMin) / Math.max(yMax - yMin, 1e-9) * plotH,
+        plotW,
+        plotH
+      };
+    }
+
+    function drawLineSeries(ctx, points, dash = []) {
+      if (!points.length) return;
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawInclinationChart(main) {
+      const setup = configureCanvas(el.inclinationCanvas);
+      const ctx = setup.ctx;
+      clearCanvas(ctx, setup.width, setup.height);
+
+      const margin = { top: 24, right: 18, bottom: 56, left: 74 };
+      const data = [];
+
+      for (let angle = 0; angle <= CHART_MAX_ANGLE; angle += 1) {
+        const rad = degToRad(angle);
+        const wedge = main.D * Math.tan(rad);
+        const minVolL = m3ToL(0.5 * main.area * wedge);
+        const vol500L = m3ToL(0.5 * main.area * wedge + main.area * 0.5);
+        data.push({ angle, minVolL, vol500L });
+      }
+
+      const yMaxRaw = Math.max(...data.map(d => Math.max(d.minVolL, d.vol500L)));
+      const yStep = niceStep(yMaxRaw, 6);
+      const yMax = Math.ceil(yMaxRaw / yStep) * yStep;
+
+      const axes = drawAxes(
+        ctx,
+        setup.width,
+        setup.height,
+        margin,
+        "Inclination (degrees from vertical)",
+        "Bismuth volume (L)",
+        0,
+        CHART_MAX_ANGLE,
+        0,
+        yMax
+      );
+
+      for (let x = 0; x <= CHART_MAX_ANGLE; x += 10) {
+        drawText(ctx, String(x), axes.xScale(x), setup.height - 32, "center", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      }
+
+      for (let y = 0; y <= yMax + 0.5 * yStep; y += yStep) {
+        drawText(ctx, fmt(y, 1), margin.left - 8, axes.yScale(y) + 4, "right", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      }
+
+      const minSeries = data.map(d => ({ x: axes.xScale(d.angle), y: axes.yScale(d.minVolL) }));
+      const v500Series = data.map(d => ({ x: axes.xScale(d.angle), y: axes.yScale(d.vol500L) }));
+
+      drawLineSeries(ctx, minSeries, []);
+      drawLineSeries(ctx, v500Series, [8, 5]);
+
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(margin.left + 8, margin.top + 8);
+      ctx.lineTo(margin.left + 42, margin.top + 8);
+      ctx.stroke();
+      drawText(ctx, "Minimum bismuth volume", margin.left + 50, margin.top + 12, "left", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+
+      ctx.setLineDash([8, 5]);
+      ctx.beginPath();
+      ctx.moveTo(margin.left + 240, margin.top + 8);
+      ctx.lineTo(margin.left + 274, margin.top + 8);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      drawText(ctx, "Volume for 500 mm barrier", margin.left + 282, margin.top + 12, "left", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      ctx.restore();
+    }
+
+    function drawDiameterChart(state) {
+      const setup = configureCanvas(el.diameterCanvas);
+      const ctx = setup.ctx;
+      clearCanvas(ctx, setup.width, setup.height);
+
+      const margin = { top: 24, right: 18, bottom: 56, left: 76 };
+      const data = [];
+
+      for (let i = 0; i < DIAMETER_SAMPLES; i += 1) {
+        const frac = DIAMETER_SAMPLES === 1 ? 0 : i / (DIAMETER_SAMPLES - 1);
+        const diameterM = state.rangeMinM + frac * (state.rangeMaxM - state.rangeMinM);
+        const area = Math.PI * diameterM * diameterM / 4;
+        const wedge = diameterM * Math.tan(state.inclinationRad);
+        const minVolume = 0.5 * area * wedge;
+        const minEffective = Math.max(0, (state.volumeM3 - minVolume) / area);
+        const maxEffective = minEffective + wedge;
+        const displayDiameter = state.rangeUnit === "mm" ? diameterM * 1000 : diameterM / 0.0254;
+
+        data.push({
+          displayDiameter,
+          minEffective,
+          maxEffective
+        });
+      }
+
+      const xMin = Math.min(...data.map(d => d.displayDiameter));
+      const xMax = Math.max(...data.map(d => d.displayDiameter));
+      const yMinRaw = Math.min(...data.map(d => Math.min(d.minEffective, d.maxEffective)));
+      const yMaxRaw = Math.max(...data.map(d => Math.max(d.minEffective, d.maxEffective)));
+      const ySpan = Math.max(yMaxRaw - yMinRaw, 1e-6);
+      const pad = ySpan * 0.12;
+      const yAxisMinRaw = Math.max(0, yMinRaw - pad);
+      const yAxisMaxRaw = yMaxRaw + pad;
+      const yStep = niceStep(yAxisMaxRaw - yAxisMinRaw, 6);
+      const yMin = Math.floor(yAxisMinRaw / yStep) * yStep;
+      const yMax = Math.ceil(yAxisMaxRaw / yStep) * yStep;
+
+      const axes = drawAxes(
+        ctx,
+        setup.width,
+        setup.height,
+        margin,
+        `Borehole diameter (${state.rangeUnit})`,
+        "Effective barrier length (m)",
+        xMin,
+        xMax,
+        yMin,
+        yMax
+      );
+
+      const xStep = niceStep(xMax - xMin || 1, 6);
+      for (let x = Math.ceil(xMin / xStep) * xStep; x <= xMax + 0.5 * xStep; x += xStep) {
+        drawText(ctx, fmt(Math.min(x, xMax), 2), axes.xScale(Math.min(x, xMax)), setup.height - 32, "center", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      }
+
+      for (let y = yMin; y <= yMax + 0.5 * yStep; y += yStep) {
+        drawText(ctx, fmt(y, 2), margin.left - 8, axes.yScale(y) + 4, "right", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      }
+
+      const minSeries = data.map(d => ({ x: axes.xScale(d.displayDiameter), y: axes.yScale(d.minEffective) }));
+      const maxSeries = data.map(d => ({ x: axes.xScale(d.displayDiameter), y: axes.yScale(d.maxEffective) }));
+
+      drawLineSeries(ctx, minSeries, []);
+      drawLineSeries(ctx, maxSeries, [8, 5]);
+
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(margin.left + 8, margin.top + 8);
+      ctx.lineTo(margin.left + 42, margin.top + 8);
+      ctx.stroke();
+      drawText(ctx, "Minimum effective barrier length", margin.left + 50, margin.top + 12, "left", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+
+      ctx.setLineDash([8, 5]);
+      ctx.beginPath();
+      ctx.moveTo(margin.left + 290, margin.top + 8);
+      ctx.lineTo(margin.left + 324, margin.top + 8);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      drawText(ctx, "Maximum effective barrier length", margin.left + 332, margin.top + 12, "left", "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+      ctx.restore();
+    }
+
+    function populateOutputs(state, main) {
+      el.outTotal.textContent = `${fmt(state.volumeL, 2)} L`;
+      el.outMin.textContent = `${fmt(m3ToL(main.minimumVolumeM3), 2)} L`;
+      el.outEff.textContent = `${fmt(main.effectiveBarrierM, 3)} m`;
+
+      const deltaL = state.volumeM3 - main.volumeFor500mmM3;
+      const deltaPct = main.volumeFor500mmM3 > 0 ? (deltaL / main.volumeFor500mmM3) * 100 : 0;
+      const sign = deltaL >= 0 ? "+" : "−";
+      el.out500.textContent = `${fmt(m3ToL(main.volumeFor500mmM3), 2)} L (${sign}${fmt(Math.abs(m3ToL(deltaL)), 2)} L, ${sign}${fmt(Math.abs(deltaPct), 1)}%)`;
+
+      const warnings = [];
+      if (main.filledExtentM > main.plottedIntervalM) {
+        warnings.push(`The computed fill extends beyond the plotted interval. The drawing is clipped at ${fmt(main.plottedIntervalM, 3)} m.`);
+      }
+      if (state.volumeM3 < main.minimumVolumeM3) {
+        warnings.push("Current volume is below the minimum wedge volume, so the effective barrier length is zero.");
+      }
+
+      if (warnings.length) {
+        el.warningBox.style.display = "block";
+        el.warningBox.textContent = warnings.join(" ");
+      } else {
+        el.warningBox.style.display = "none";
+        el.warningBox.textContent = "";
+      }
+    }
+
+    function populateSweepTable(state) {
+      const D = state.diameterM;
+      const area = Math.PI * D * D / 4;
+      const rows = SWEEP_ANGLES.map(angle => {
+        const rad = degToRad(angle);
+        const wedge = D * Math.tan(rad);
+        const minVolumeM3 = 0.5 * area * wedge;
+        const effectiveBarrierM = Math.max(0, (state.volumeM3 - minVolumeM3) / area);
+        const volumeFor500M3 = minVolumeM3 + area * 0.5;
+
+        return `
+          <tr>
+            <td>${fmt(angle, 0)}</td>
+            <td>${fmt(m3ToL(minVolumeM3), 2)} L</td>
+            <td>${fmt(effectiveBarrierM, 3)} m</td>
+            <td>${fmt(m3ToL(volumeFor500M3), 2)} L</td>
+          </tr>
+        `;
+      }).join("");
+
+      el.sweepBody.innerHTML = rows;
+    }
+
+    function exportCanvas(canvas, filename) {
+      const dataUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function renderAll() {
+      try {
+        el.fillSwatch.style.background = el.fillColor.value;
+        const state = getInputState();
+        const main = solveMain(state);
+
+        populateOutputs(state, main);
+        populateSweepTable(state);
+        drawWellPlot(state, main);
+        drawInclinationChart(main);
+        drawDiameterChart(state);
+      } catch (err) {
+        el.outTotal.textContent = "-";
+        el.outMin.textContent = "-";
+        el.outEff.textContent = "-";
+        el.out500.textContent = "-";
+        el.sweepBody.innerHTML = "";
+        el.warningBox.style.display = "block";
+        el.warningBox.textContent = err.message || "Invalid input.";
+
+        [el.wellCanvas, el.inclinationCanvas, el.diameterCanvas].forEach(canvas => {
+          const setup = configureCanvas(canvas);
+          clearCanvas(setup.ctx, setup.width, setup.height);
+          drawText(setup.ctx, "No plot: invalid input", 20, 30, "left", "700 16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif");
+        });
+      }
+    }
+
+    let resizeTimer = null;
+    function queueRender() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(renderAll, 50);
+    }
+
+    setInitialDefaults();
+    syncRangeUnits();
+
+    [
+      el.diameter,
+      el.inclination,
+      el.interval,
+      el.volume,
+      el.rangeMin,
+      el.rangeMax,
+      el.fillColor
+    ].forEach(node => {
+      node.addEventListener("input", renderAll, { passive: true });
+      node.addEventListener("change", renderAll, { passive: true });
+    });
+
+    [el.diameterUnit, el.intervalUnit, el.rangeUnit].forEach(node => {
+      node.addEventListener("change", () => {
+        if (node === el.diameterUnit) syncRangeUnits();
+        if (node === el.rangeUnit) el.rangeUnitMirror.value = el.rangeUnit.value;
+        renderAll();
+      }, { passive: true });
+    });
+
+    el.redrawBtn.addEventListener("click", renderAll);
+    el.exportWellBtn.addEventListener("click", () => exportCanvas(el.wellCanvas, "well-plot.png"));
+    el.exportChartsBtn.addEventListener("click", () => exportCanvas(el.diameterCanvas, "diameter-chart.png"));
+
+    window.addEventListener("resize", queueRender, { passive: true });
+    window.addEventListener("orientationchange", queueRender, { passive: true });
+    window.addEventListener("pageshow", queueRender, { passive: true });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", queueRender, { passive: true });
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(renderAll);
+    });
+  </script>
+</body>
+</html>
